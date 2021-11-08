@@ -18,6 +18,13 @@ struct Memo: Identifiable, Equatable {
         return title.isEmpty && body.isEmpty
     }
     
+    mutating func update(with memo: Memo) {
+        self.title = memo.title
+        self.body = memo.body
+        self.date = memo.date
+        self.state = memo.state
+    }
+    
     static func == (lhs: Self, rhs: Self) -> Bool {
         lhs.id == rhs.id
     }

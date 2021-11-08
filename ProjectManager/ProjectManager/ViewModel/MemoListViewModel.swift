@@ -96,9 +96,7 @@ extension MemoListViewModel {
         let state = old.state
 
         if let target = memoList[state]?.firstIndex(of: old) {
-            memoList[state]?[target].title = new.title
-            memoList[state]?[target].body = new.body
-            memoList[state]?[target].date = new.date
+            memoList[state]?[target].update(with: new)
         }
     }
 }
