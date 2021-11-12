@@ -21,7 +21,10 @@ final class MemoRowViewModel: ObservableObject {
     init(memo: Memo) {
         self.memo = memo
     }
+}
 
+// MARK: - Style
+extension MemoRowViewModel {
     func yyyyMMdd(from date: Date) -> String {
         return dateFormatter.string(from: date)
     }
