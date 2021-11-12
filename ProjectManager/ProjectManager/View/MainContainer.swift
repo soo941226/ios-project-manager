@@ -54,12 +54,19 @@ extension MainContainer {
         let memoList = viewModel.list(about: state)
         
         return MemoList(title: state.description, itemCount: memoList.count) {
-            ForEach(memoList) { memo in
-                MemoRow(viewModel: .init(memo: memo))
+            ForEach(memoList, id: \.self) { memo in
+                let rowViewModel = MemoRowViewModel(memo: memo)
+                MemoRow(viewModel: rowViewModel)
                     .padding(.bottom, UIStyle.minInsetAmount)
+                    .accessibilityElement()
+                    .accessibilityLabel(rowViewModel.memo.title)
+                    .accessibilityValue(rowViewModel.memo.body)
                     .onTapGesture {
                         viewModel.joinToUpdate(memo)
                         isEdited.toggle()
+                    }
+                    .onLongPressGesture {
+                        
                     }
                     .swipeToDelete {
                         guard let index = memoList.firstIndex(of: memo) else {
