@@ -7,8 +7,8 @@
 
 import SwiftUI
 
-struct Memo: Identifiable, Equatable {
-    var id: UUID
+struct Memo: Hashable, Equatable {
+    let id: UUID
     var title: String
     var body: String
     var date: Date
