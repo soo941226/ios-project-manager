@@ -42,7 +42,7 @@ struct MainContainer: View {
                 viewModel.afterEdit()
             },
             content: {
-                MemoView(viewModel: viewModel, isShow: $isEdited)
+                MemoView(memoEditorViewModel: viewModel, isShow: $isEdited)
             }
         )
     }

@@ -7,17 +7,14 @@
 
 import SwiftUI
 
+protocol MemoEditorViewModel: ObservableObject {
+    var memoToEdit: Memo? { get }
+    func edit(_ memo: Memo)
+}
+
 final class MemoListViewModel: ObservableObject {
     @Published private var currentState: ActionState = .read
     private(set) var memoList: [Memo.State: [Memo]] = [:]
-
-    var memoToEdit: Memo? {
-        guard case .update(let memo) = currentState else {
-            return nil
-        }
-
-        return memo
-    }
 
     // TODO: - Delete someday
     init() {
@@ -47,7 +44,28 @@ final class MemoListViewModel: ObservableObject {
     }
 }
 
-// MARK: - CRUD Interface
+// MARK: - Update Interface
+extension MemoListViewModel: MemoEditorViewModel {
+    var memoToEdit: Memo? {
+        guard case .update(let memo) = currentState else {
+            return nil
+        }
+
+        return memo
+    }
+
+    func edit(_ memo: Memo) {
+        if case .create = currentState {
+            insert(memo)
+        } else if case .update(let updatingMemo) = currentState {
+            update(from: updatingMemo, to: memo)
+        } else {
+            print("there is nothing to do")
+        }
+    }
+}
+
+// MARK: - Create, Read, Delete Interface
 extension MemoListViewModel {
     func list(about state: Memo.State) -> [Memo] {
         return memoList[state] ?? []
@@ -59,16 +77,6 @@ extension MemoListViewModel {
 
     func joinToUpdate(_ memo: Memo) {
         currentState = .update(memo)
-    }
-
-    func edit(_ memo: Memo) {
-        if case .create = currentState {
-            insert(memo)
-        } else if case .update(let updatingMemo) = currentState {
-            update(from: updatingMemo, to: memo)
-        } else {
-            print("there is nothing to do")
-        }
     }
 
     func afterEdit() {

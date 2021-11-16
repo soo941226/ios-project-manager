@@ -7,8 +7,8 @@
 
 import SwiftUI
 
-struct MemoView: View {
-    @ObservedObject var viewModel: MemoListViewModel
+struct MemoView<MemoEditor: MemoEditorViewModel>: View {
+    @ObservedObject var memoEditorViewModel: MemoEditor
     @Binding var isShow: Bool
 
     @State private var blockToUpdate = false
@@ -51,7 +51,7 @@ struct MemoView: View {
                 }
             }
             .onAppear {
-                if let memo = viewModel.memoToEdit {
+                if let memo = memoEditorViewModel.memoToEdit {
                     title = memo.title
                     description = memo.body
                     date = memo.date
@@ -130,7 +130,7 @@ extension MemoView {
                 state: .todo
             )
 
-            viewModel.edit(memo)
+            memoEditorViewModel.edit(memo)
             isShow = false
         } label: {
             Text("DONE")
@@ -141,7 +141,7 @@ extension MemoView {
 struct MemoView_Previews: PreviewProvider {
     static var previews: some View {
         MemoView.init(
-            viewModel: MemoListViewModel(),
+            memoEditorViewModel: MemoListViewModel(),
             isShow: .constant(true)
         )
     }
