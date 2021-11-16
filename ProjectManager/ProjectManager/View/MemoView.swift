@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct MemoView<MemoEditor: MemoEditorViewModel>: View {
+struct MemoView<MemoEditor: MemoContentChangableViewModel>: View {
     @ObservedObject var memoEditorViewModel: MemoEditor
     @Binding var isShow: Bool
 

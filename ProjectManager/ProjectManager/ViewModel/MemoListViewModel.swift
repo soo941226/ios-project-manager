@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-protocol MemoEditorViewModel: ObservableObject {
+protocol MemoContentChangableViewModel: ObservableObject {
     var memoToEdit: Memo? { get }
     func edit(_ memo: Memo)
 }
@@ -45,7 +45,7 @@ final class MemoListViewModel: ObservableObject {
 }
 
 // MARK: - Update Interface
-extension MemoListViewModel: MemoEditorViewModel {
+extension MemoListViewModel: MemoContentChangableViewModel {
     var memoToEdit: Memo? {
         guard case .update(let memo) = currentState else {
             return nil
@@ -106,5 +106,22 @@ extension MemoListViewModel {
         if let target = memoList[state]?.firstIndex(of: old) {
             memoList[state]?[target].update(with: new)
         }
+    }
+}
+
+// MARK: Adopting delegation
+extension MemoListViewModel: MemoRowViewModelableDelegate {
+    func updateMemo(with memo: Memo) {
+        currentState = .update(memo)
+
+        let statesToFind = Memo.State.allCases.filter { $0 != memo.state }
+        statesToFind.forEach { state in
+            if let index = memoList[state]?.firstIndex(where: { $0.id == memo.id }) {
+                memoList[state]?.remove(at: index)
+                memoList[memo.state]?.insert(memo, at: 0)
+            }
+        }
+
+        currentState = .read
     }
 }

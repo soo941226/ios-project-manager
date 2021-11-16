@@ -7,8 +7,35 @@
 
 import SwiftUI
 
-final class MemoRowViewModel: ObservableObject {
+protocol MemoExpressionViewModelable: ObservableObject {
+    var memo: Memo { get }
+    var isLongPressed: Binding<Bool> { get }
+    func yyyyMMdd(from date: Date) -> String
+    func color(about memo: Memo) -> Color
+}
+
+protocol MemoStateChangableViewModel {
+    var changableState: [Memo.State] { get }
+    func updateState(with state: Memo.State)
+    func hidePopover()
+}
+
+protocol MemoRowViewModelableDelegate: AnyObject {
+    func updateMemo(with memo: Memo)
+}
+
+typealias MemoRowViewModelable = MemoExpressionViewModelable & MemoStateChangableViewModel
+
+final class MemoRowViewModel {
     @Published private(set) var memo: Memo
+    @Published private(set) var isPopover = false
+    weak var delegate: MemoRowViewModelableDelegate?
+
+    lazy private(set) var isLongPressed = Binding<Bool> {
+        self.isPopover
+    } set: { bool in
+        self.isPopover = bool
+    }
 
     private let dateFormatter: DateFormatter = {
         let result = DateFormatter()
@@ -18,13 +45,22 @@ final class MemoRowViewModel: ObservableObject {
         return result
     }()
 
-    init(memo: Memo) {
+    init(memo: Memo, delegate: MemoRowViewModelableDelegate) {
         self.memo = memo
+        self.delegate = delegate
+    }
+
+    func showPopover() {
+        isPopover = true
+    }
+
+    func hidePopover() {
+        isPopover = false
     }
 }
 
-// MARK: - Style
-extension MemoRowViewModel {
+// MARK: - Expression Style
+extension MemoRowViewModel: MemoExpressionViewModelable {
     func yyyyMMdd(from date: Date) -> String {
         return dateFormatter.string(from: date)
     }
@@ -44,5 +80,17 @@ extension MemoRowViewModel {
         } else {
             return .black
         }
+    }
+}
+
+// MARK: - State editor
+extension MemoRowViewModel: MemoStateChangableViewModel {
+    var changableState: [Memo.State] {
+        return Memo.State.allCases.filter { state in state != memo.state }
+    }
+
+    func updateState(with state: Memo.State) {
+        memo.state = state
+        delegate?.updateMemo(with: memo)
     }
 }

@@ -55,7 +55,8 @@ extension MainContainer {
         
         return MemoList(title: state.description, itemCount: memoList.count) {
             ForEach(memoList, id: \.self) { memo in
-                let rowViewModel = MemoRowViewModel(memo: memo)
+                let rowViewModel = MemoRowViewModel(memo: memo, delegate: viewModel)
+
                 MemoRow(viewModel: rowViewModel)
                     .padding(.bottom, UIStyle.minInsetAmount)
                     .accessibilityElement()
@@ -66,7 +67,7 @@ extension MainContainer {
                         isEdited.toggle()
                     }
                     .onLongPressGesture {
-                        
+                        rowViewModel.showPopover()
                     }
                     .swipeToDelete {
                         guard let index = memoList.firstIndex(of: memo) else {

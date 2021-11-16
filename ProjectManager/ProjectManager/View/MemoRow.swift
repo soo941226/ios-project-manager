@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct MemoRow: View {
+struct MemoRow<MemoRowViewModel: MemoRowViewModelable>: View {
     @ObservedObject var viewModel: MemoRowViewModel
 
     var body: some View {
@@ -32,19 +32,38 @@ struct MemoRow: View {
                     .padding(UIStyle.minInsetAmount)
             }
         }
+        .popover(
+            isPresented: viewModel.isLongPressed,
+            attachmentAnchor: .point(.center),
+            arrowEdge: .top
+        ) {
+            StateChangerBackground {
+                ForEach(viewModel.changableState, id: \.self) { state in
+                    Button {
+                        viewModel.updateState(with: state)
+                        viewModel.hidePopover()
+                    } label: {
+                        Text("Move to \(state.description)")
+                    }
+                }
+            }
+        }
     }
 }
 
 struct ListItem_Previews: PreviewProvider {
     static var previews: some View {
         MemoRow(
-            viewModel: .init(memo: Memo(
-                id: UUID(),
-                title: "title",
-                body: "body",
-                date: Date(),
-                state: .todo
-            ))
+            viewModel: MemoRowViewModel(
+                memo: Memo(
+                    id: UUID(),
+                    title: "title",
+                    body: "body",
+                    date: Date(),
+                    state: .todo
+                ),
+                delegate: MemoListViewModel()
+            )
         )
             .previewLayout(
                 .fixed(width: 200, height: 200)
