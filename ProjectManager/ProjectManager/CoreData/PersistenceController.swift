@@ -7,15 +7,21 @@
 
 import CoreData
 
+protocol PersistenceControllerDelegate: AnyObject {
+    func loadFailed(_ error: NSError)
+}
+
 struct PersistenceController {
     static let shared = PersistenceController()
-    
+
     private let container = NSPersistentContainer(name: "ProjectManager")
-    
+
+    weak var delegate: PersistenceControllerDelegate?
+
     private init() {
-        container.loadPersistentStores { _, error in
+        container.loadPersistentStores { [self] _, error in
             if let error = error as NSError? {
-                fatalError("Unresolved error \(error), \(error.userInfo)")
+                self.delegate?.loadFailed(error)
             }
         }
     }
