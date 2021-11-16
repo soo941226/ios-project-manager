@@ -116,9 +116,11 @@ extension MemoListViewModel: MemoRowViewModelableDelegate {
 
         let statesToFind = Memo.State.allCases.filter { $0 != memo.state }
         statesToFind.forEach { state in
-            if let index = memoList[state]?.firstIndex(where: { $0.id == memo.id }) {
+            if let index = memoList[state]?.firstIndex(
+                where: { target in target.id == memo.id }
+            ) {
                 memoList[state]?.remove(at: index)
-                memoList[memo.state]?.insert(memo, at: 0)
+                memoList[memo.state]?.insert(memo, at: .zero)
             }
         }
 
