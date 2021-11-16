@@ -8,7 +8,7 @@
 import SwiftUI
 
 extension View {
-    func swipeToDelete(deleteAction: @escaping () -> Void) -> some View {
+    func onSwipeToDelete(deleteAction: @escaping () -> Void) -> some View {
         self.modifier(DeleteSwiper(delete: deleteAction))
     }
 }

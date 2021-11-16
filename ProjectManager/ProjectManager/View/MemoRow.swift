@@ -7,6 +7,10 @@
 
 import SwiftUI
 
+typealias MemoRowViewModelable = ObservableObject &
+                                MemoExpressionableViewModel &
+                                MemoStateChangableViewModel
+
 struct MemoRow<MemoRowViewModel: MemoRowViewModelable>: View {
     @ObservedObject var viewModel: MemoRowViewModel
 

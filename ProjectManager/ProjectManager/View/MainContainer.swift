@@ -69,7 +69,7 @@ extension MainContainer {
                     .onLongPressGesture {
                         rowViewModel.showPopover()
                     }
-                    .swipeToDelete {
+                    .onSwipeToDelete {
                         guard let index = memoList.firstIndex(of: memo) else {
                             return
                         }
