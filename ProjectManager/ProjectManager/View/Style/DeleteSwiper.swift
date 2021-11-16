@@ -32,6 +32,11 @@ struct DeleteSwiper: ViewModifier {
                 .gesture(
                     DragGesture(minimumDistance: distanceForDrag, coordinateSpace: .local)
                         .onChanged { gesture in
+                            if isVisible == false &&
+                                gesture.translation.width > 0 {
+                                return
+                            }
+
                             withAnimation {
                                 offset = gesture.translation.width
                             }
