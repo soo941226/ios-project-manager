@@ -14,7 +14,7 @@ protocol MemoExpressionViewModelable: ObservableObject {
     func color(about memo: Memo) -> Color
 }
 
-protocol MemoStateChangableViewModel {
+protocol MemoStateChangableViewModel: ObservableObject {
     var changableState: [Memo.State] { get }
     func updateState(with state: Memo.State)
     func hidePopover()
