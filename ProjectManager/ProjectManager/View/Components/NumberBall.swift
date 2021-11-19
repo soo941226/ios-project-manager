@@ -13,7 +13,7 @@ struct NumberBall: View {
     var body: some View {
         Text(number.description)
             .bold()
-            .padding(10)
+            .padding(UIStyle.paddingAmount)
             .foregroundColor(.white)
             .background(
                 Circle().foregroundColor(.black)
