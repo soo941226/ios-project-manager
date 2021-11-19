@@ -44,8 +44,10 @@ struct MemoRow<MemoRowViewModel: MemoRowViewModelable>: View {
             StateChangerBackground {
                 ForEach(viewModel.changableState, id: \.self) { state in
                     Button {
-                        viewModel.updateState(with: state)
-                        viewModel.hidePopover()
+                        withAnimation {
+                            viewModel.updateState(with: state)
+                            viewModel.hidePopover()
+                        }
                     } label: {
                         Text("Move to \(state.description)")
                     }
