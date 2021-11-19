@@ -14,6 +14,10 @@ struct Memo: Hashable, Equatable {
     var date: Date
     var state: State
 
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id.hashValue)
+    }
+    
     var isEmpty: Bool {
         return title.isEmpty && body.isEmpty
     }
@@ -22,7 +26,6 @@ struct Memo: Hashable, Equatable {
         self.title = memo.title
         self.body = memo.body
         self.date = memo.date
-        self.state = memo.state
     }
     
     static func == (lhs: Self, rhs: Self) -> Bool {
@@ -31,9 +34,9 @@ struct Memo: Hashable, Equatable {
 
     enum State: Int, CaseIterable, CustomStringConvertible {
         case todo = 0
-        case done = 1
-        case doing = 2
-        
+        case doing = 1
+        case done = 2
+
         var description: String {
             switch self {
             case .todo:
