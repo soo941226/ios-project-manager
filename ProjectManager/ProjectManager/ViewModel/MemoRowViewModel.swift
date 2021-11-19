@@ -7,27 +7,10 @@
 
 import SwiftUI
 
-protocol MemoExpressionableViewModel {
-    var memo: Memo { get }
-    var isLongPressed: Binding<Bool> { get }
-    func yyyyMMdd(from date: Date) -> String
-    func color(about memo: Memo) -> Color
-}
-
-protocol MemoStateChangableViewModel {
-    var changableState: [Memo.State] { get }
-    func updateState(with state: Memo.State)
-    func hidePopover()
-}
-
-protocol MemoRowViewModelableDelegate: AnyObject {
-    func updateMemo(with memo: Memo)
-}
-
 final class MemoRowViewModel: ObservableObject {
     @Published private(set) var memo: Memo
     @Published private(set) var isPopover = false
-    weak var delegate: MemoRowViewModelableDelegate?
+    weak var delegate: MemoRowViewModelDelegate?
 
     lazy private(set) var isLongPressed = Binding<Bool> {
         self.isPopover
@@ -43,7 +26,7 @@ final class MemoRowViewModel: ObservableObject {
         return result
     }()
 
-    init(memo: Memo, delegate: MemoRowViewModelableDelegate) {
+    init(memo: Memo, delegate: MemoRowViewModelDelegate) {
         self.memo = memo
         self.delegate = delegate
     }
@@ -58,7 +41,7 @@ final class MemoRowViewModel: ObservableObject {
 }
 
 // MARK: - Expression Style
-extension MemoRowViewModel: MemoExpressionableViewModel {
+extension MemoRowViewModel: MemoExpressionable {
     func yyyyMMdd(from date: Date) -> String {
         return dateFormatter.string(from: date)
     }
@@ -82,7 +65,7 @@ extension MemoRowViewModel: MemoExpressionableViewModel {
 }
 
 // MARK: - State editor
-extension MemoRowViewModel: MemoStateChangableViewModel {
+extension MemoRowViewModel: MemoStateChangable {
     var changableState: [Memo.State] {
         return Memo.State.allCases.filter { state in state != memo.state }
     }

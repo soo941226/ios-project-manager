@@ -7,32 +7,13 @@
 
 import SwiftUI
 
-protocol MemoContentChangableViewModel: ObservableObject {
-    var memoToEdit: Memo? { get }
-    func edit(_ memo: Memo)
-}
-
 final class MemoListViewModel: ObservableObject {
     @Published private var currentState: ActionState = .read
     private(set) var memoList: [Memo.State: [Memo]] = [:]
 
-    // TODO: - Delete someday
     init() {
         Memo.State.allCases.forEach { state in
-            memoList.updateValue([], forKey: state)
-        }
-
-        (0...30).forEach { int in
-            let state = Memo.State.allCases.randomElement()!
-            let memo = Memo(
-                id: UUID(),
-                title: int.description,
-                body: (int * 9999999999999).description,
-                date: Date(),
-                state: state
-            )
-
-            memoList[state]?.append(memo)
+            memoList[state] = []
         }
     }
 
@@ -45,7 +26,7 @@ final class MemoListViewModel: ObservableObject {
 }
 
 // MARK: - Update Interface
-extension MemoListViewModel: MemoContentChangableViewModel {
+extension MemoListViewModel: MemoContentChangable {
     var memoToEdit: Memo? {
         guard case .update(let memo) = currentState else {
             return nil
@@ -83,7 +64,11 @@ extension MemoListViewModel {
         currentState = .read
     }
 
-    func delete(at index: Int, from state: Memo.State) {
+    func delete(_ memo: Memo, from state: Memo.State) {
+        guard let index = memoList[state]?.firstIndex(of: memo) else {
+            return
+        }
+
         currentState = .delete
         memoList[state]?.remove(at: index)
         currentState = .read
@@ -110,20 +95,25 @@ extension MemoListViewModel {
 }
 
 // MARK: Adopting delegation
-extension MemoListViewModel: MemoRowViewModelableDelegate {
+extension MemoListViewModel: MemoRowViewModelDelegate {
     func updateMemo(with memo: Memo) {
         currentState = .update(memo)
 
-        let statesToFind = Memo.State.allCases.filter { $0 != memo.state }
-        statesToFind.forEach { state in
-            if let index = memoList[state]?.firstIndex(
-                where: { target in target.id == memo.id }
-            ) {
-                memoList[state]?.remove(at: index)
-                memoList[memo.state]?.insert(memo, at: .zero)
+        DispatchQueue.global().async {
+            let statesToFind = Memo.State.allCases.filter { $0 != memo.state }
+
+            statesToFind.forEach { [weak self] state in
+                let memoPreviousIndex = self?.memoList[state]?.firstIndex(
+                    where: { target in target.id == memo.id })
+                if let index = memoPreviousIndex {
+                    self?.memoList[state]?.remove(at: index)
+                    self?.memoList[memo.state]?.insert(memo, at: .zero)
+                }
+            }
+
+            DispatchQueue.main.async { [weak self] in
+                self?.currentState = .read
             }
         }
-
-        currentState = .read
     }
 }

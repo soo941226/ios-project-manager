@@ -7,10 +7,6 @@
 
 import CoreData
 
-protocol PersistenceControllerDelegate: AnyObject {
-    func loadFailed(_ error: NSError)
-}
-
 struct PersistenceController {
     static let shared = PersistenceController()
 

@@ -7,6 +7,8 @@
 
 import SwiftUI
 
+typealias MemoContentChangableViewModel = MemoContentChangable & ObservableObject
+
 struct MemoView<MemoEditor: MemoContentChangableViewModel>: View {
     @ObservedObject var memoEditorViewModel: MemoEditor
     @Binding var isShow: Bool

@@ -8,8 +8,8 @@
 import SwiftUI
 
 typealias MemoRowViewModelable = ObservableObject &
-                                MemoExpressionableViewModel &
-                                MemoStateChangableViewModel
+                                MemoExpressionable &
+                                MemoStateChangable
 
 struct MemoRow<MemoRowViewModel: MemoRowViewModelable>: View {
     @ObservedObject var viewModel: MemoRowViewModel

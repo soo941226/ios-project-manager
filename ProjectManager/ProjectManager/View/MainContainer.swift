@@ -55,30 +55,34 @@ extension MainContainer {
         
         return MemoList(title: state.description, itemCount: memoList.count) {
             ForEach(memoList, id: \.self) { memo in
-                let rowViewModel = MemoRowViewModel(memo: memo, delegate: viewModel)
-
-                MemoRow(viewModel: rowViewModel)
-                    .padding(.bottom, UIStyle.minInsetAmount)
-                    .accessibilityElement()
-                    .accessibilityLabel(rowViewModel.memo.title)
-                    .accessibilityValue(rowViewModel.memo.body)
-                    .onTapGesture {
-                        viewModel.joinToUpdate(memo)
-                        isEdited.toggle()
-                    }
-                    .onLongPressGesture {
-                        rowViewModel.showPopover()
-                    }
-                    .onSwipeToDelete {
-                        guard let index = memoList.firstIndex(of: memo) else {
-                            return
-                        }
-
-                        viewModel.delete(at: index, from: state)
-                    }
+                memoRowView(memo, initialState: state, listViewModel: viewModel)
             }
         }
         .background(Color.basic)
+    }
+
+    private func memoRowView(
+        _ memo: Memo,
+        initialState state: Memo.State,
+        listViewModel viewModel: MemoListViewModel
+    ) -> some View {
+        let rowViewModel = MemoRowViewModel(memo: memo, delegate: viewModel)
+
+        return MemoRow(viewModel: rowViewModel)
+            .padding(.bottom, UIStyle.minInsetAmount)
+            .accessibilityElement()
+            .accessibilityLabel(rowViewModel.memo.title)
+            .accessibilityValue(rowViewModel.memo.body)
+            .onTapGesture {
+                viewModel.joinToUpdate(memo)
+                isEdited.toggle()
+            }
+            .onLongPressGesture {
+                rowViewModel.showPopover()
+            }
+            .onSwipeToDelete {
+                viewModel.delete(memo, from: state)
+            }
     }
 }
 
