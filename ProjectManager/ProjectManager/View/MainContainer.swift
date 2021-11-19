@@ -55,7 +55,7 @@ extension MainContainer {
         
         return MemoList(title: state.description, itemCount: memoList.count) {
             ForEach(memoList, id: \.self) { memo in
-                memoRowView(memo, initialState: state, listViewModel: viewModel)
+                memoRowView(memo, listViewModel: viewModel)
             }
         }
         .background(Color.basic)
@@ -63,7 +63,6 @@ extension MainContainer {
 
     private func memoRowView(
         _ memo: Memo,
-        initialState state: Memo.State,
         listViewModel viewModel: MemoListViewModel
     ) -> some View {
         let rowViewModel = MemoRowViewModel(memo: memo, delegate: viewModel)
@@ -81,7 +80,7 @@ extension MainContainer {
                 rowViewModel.showPopover()
             }
             .onSwipeToDelete {
-                viewModel.delete(memo, from: state)
+                viewModel.delete(memo)
             }
     }
 }

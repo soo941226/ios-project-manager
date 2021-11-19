@@ -64,13 +64,13 @@ extension MemoListViewModel {
         currentState = .read
     }
 
-    func delete(_ memo: Memo, from state: Memo.State) {
-        guard let index = memoList[state]?.firstIndex(of: memo) else {
+    func delete(_ memo: Memo) {
+        guard let index = memoList[memo.state]?.firstIndex(of: memo) else {
             return
         }
 
         currentState = .delete
-        memoList[state]?.remove(at: index)
+        memoList[memo.state]?.remove(at: index)
         currentState = .read
     }
 }
