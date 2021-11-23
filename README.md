@@ -16,6 +16,8 @@
 <details>
 <summary><b>의존성</b></summary>   
 
+<br>
+
 1. SwiftLint
     * 휴먼에러를 방지해준다는 점에서 가장 먼저 떠올랐다
     * 일관된 컨벤션 유지할 수 있게 도와줘 코드 가독성에 긍정적인 영향을 주기도 한다
@@ -49,7 +51,11 @@
 
 </details>
 
+<br>
 
+---
+
+<br>
 
 ### II. 이번 프로젝트를 통해 학습한 것
 
@@ -86,12 +92,22 @@
       ```
     - 직접 사용한다면 위처럼 짜볼 수 있겠다.
 
+<br>
+
+---
+
+<br>
 
 2. ViewBuilder
    - SwiftUI에서는 특히 ViewBuilder라는 @resultBulder가 존재했다
    - 또 특이하게 인자로 받을 수 있는 뷰의 갯수가 최대 10개까지만 정의가 되어있었다
    - 처음에는 VStack, Group 따위가 이를 사용하고 있어서, 공부만 해놓고 ViewBuilder를 직접 사용할 일이 없었는데 추후 커스텀뷰를 작성하게 되면서, 이를 재사용하기 좋게 만들기 위해서 ViewBuilder를 직접 사용해보게 되었다
 
+<br>
+
+---
+
+<br>
 
 3. MVVM
    * MVC는 나이브하게 앱의 구성을 Model, View, Controller로 구분하여 개발 및 유지보수를 쉽게 하려는 목적을 가진 아키텍처였다
@@ -105,11 +121,34 @@
    * ViewModel은 View와 Model 사이에서 데이터를 조작해서 주고 받게 해준다. 때문에 Interpreter라고도 표현한다고 한다
    * 즉 모든 동작은 ViewModel이 하게 되지만, View는 이에 대한 결과로써 단지 보여질 뿐이다
 
+<br>
+
+---
+
+<br>
 
 4. MVVM + Combine
-   * 풀어나가야할 단어를 일단 정리를 해봤다. Source of truth, ObservableObject, StateObject, ObservedObject, objectWillChange.send(), Publisher...
-   * 
+   * 위에 적은 내용과의 차이점은, 위에서는 개념만을 이야기 했다면 여기서는 코드레벨에 대해서 좀 풀어보고 싶었다
+   * MVVM 자체는 아키텍처일 뿐이기 때문에, 실제로 data driven 되기 위해서는 코드레벨에서 아이디어가 필요하다. KVO나 NotificationCenter 등을 활용해볼 수도 있을 것이다
+   * 하지만 SwiftUI는 특히 Combine이나 RxSwift와 많이 엮이는 것 같아서... 1st party인 Combine을 구태여 써보기로 했었다
+   * 이를 설명하기에 앞서 뷰는 계층구조를 갖는다는 점을 기억해야할 것 같다. 뷰는 계층 구조를 갖는다. 뷰에 연결되는 데이터도, 뷰를 따라 계층구조를 갖게 된다
+   * 이 때 데이터의 시발점을 source of truth라고 한다
+   * 데이터가 많은 계층구조를 요구하지 않고, 특히 단순하고 따로 관리가 필요하지 않은 데이터일 경우에는 State나 Binding을 사용해서 뷰가 가지고 있을 수도 있다
+   * 하지만 이에 대한 관리감독이 필요하다면, ViewModel을 이용해 데이터를 관리하는 게 좋겠다
+   * 뷰모델은 바로 위의 목적 때문에, 보통 내부 데이터의 변화가 일어나면 뷰를 다시 그릴 필요가 생기는데, 이러한 기능을 추상화해놓은 ObservableObject가 있어서 이를 채택하게 되고 이게 또 AnyObject를 채택하고 있어서 class로 작성하게 된다. 하지만 반드시 ObservableObject를 사용할 필요는 없고, hold만 하면 된다면 struct로 사용해도 괜찮다.
+   * 어쨌거나, ObservableObject는 다시 여러가지의 propertyWrapper를 사용해서 받을 수 있다. 특히 EnvironmentObject, StateObejct, ObservedObject등이 있다
+     * EnvironmentObject는 앱 전역에 사용될 필요가 있을 경우 사용하게 된다. 예를 들면 에러에 관한 팝오버가 필요하다면 앱 전역에 필요할 수 있으므로 비교적 적합하다고 볼 수 있겠다. 전역에 사용될 수 있으므로 항상 신중해야 한다
+     * ObservedObject는 단지 reference를 넘겨주기 위해서만 사용된다. 특히 뷰모델이 뷰에 종속되어 하나의 흐름으로 관리가 필요할 때에 적합하다
+     * StateObject는 ViewModel을 init을 할 때 사용되며, 뷰 내부에서 선언되더라도 뷰와는 독립적인 데이터플로우를 갖게 된다. 뷰의 생명주기와는 무관해지기 때문에 이 또한 각별히 신경을 써야한다.
+   * ObservableObject는 데이터 내부의 변화를, objectWillChange.send()라고 하는 메소드로 자신을 바라보고 있는 뷰들에게 알려주게 된다. 하지만 모든 데이터의 변화에 이러한 메소드를 호출하는 것은 또 생각해보면 별로다
+   * 그래서 이러한 기능을 이미 캡슐화 해놓은 게 있는데 그게 Publisher다. propertyWrapper로써 변화를 감지할 필요가 있는 데이터에 사용하게 되면, 뷰들은 이게 변화할 때마다 다시 그려지게 된다
+   * 변화할 때마다 다시 그려지기 때문에, 편하긴 하지만 정말로 Publisher를 붙여야만 하는지에 대해서는 신중할 필요가 있다. 성능에 많은 이슈가 있을 것이다 
 
+<br>
+
+---
+
+<br>
 
 | theme | description |
 |---|---|
