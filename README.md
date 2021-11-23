@@ -74,21 +74,34 @@
     - protocol처럼, 이 속성을 사용하는 타입은 buildBlock이라고 하는 메소드를 반드시 정의해줘야하며, 내용 자체는 sequence의 reduce와 일맥상통한다고 봤다
     - 그리고 이를 채택한 타입은 클로저의 앞에 Attribute처럼 추가해줄 수 있고, 해당 클로저의 바디 안에 있는 내용들은 buildBlock의 인자로 들어가게 된다
       ```swift
-        @resultBuilder struct StringBuilder {
+      @resultBuilder struct StringBuilder {
           static func buildBlock(_ components: Int...) -> String {
-            return components.reduce("") { partialResult, int in
-              return partialResult + int.description
-            } 
+              return components.reduce("") { partialResult, int in
+                  return partialResult + int.description
+              }
           }
-        }
-        
-       @StringBuilder func oneTwoThree() -> String {
+   
+          static func buildBlock(_ components: String...) -> String {
+              return components.reduce("") { partialResult, string in
+                  return partialResult + string.description
+              }
+          }
+      }
+   
+      @StringBuilder func oneTwoThree() -> String {
           1
           2
           3
-       }
-      
-       oneTwoThree() //123
+      }
+   
+      @StringBuilder func threeTwoOne() -> String {
+          "3"
+          "2"
+          "1"
+      }
+   
+      print(oneTwoThree()) //123
+      print(threeTwoOne()) //321
       ```
     - 직접 사용한다면 위처럼 짜볼 수 있겠다.
 
